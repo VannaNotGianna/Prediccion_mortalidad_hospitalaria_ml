@@ -212,7 +212,7 @@ El documento utiliza LaTeX con la clase `IEEEtran` en formato de conferencia.
 
 ## Estado del proyecto
 
-Actualmente se encuentra desarrollada la etapa de análisis exploratorio. Las siguientes etapas corresponden al preprocesamiento, construcción del baseline, entrenamiento de modelos y evaluación final.
+Actualmente se encuentra desarrollada la etapa de análisis exploratorio. Las siguientes etapas estarán disponibles pronto.
 
 ## Referencias
 
