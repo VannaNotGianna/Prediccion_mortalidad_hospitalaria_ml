@@ -10,8 +10,6 @@ La descripción y documentación del dataset se encuentran disponibles en:
 
 https://hbiostat.org/data/repo/supportdesc
 
-Antes de incluir el archivo directamente en un repositorio público, se recomienda revisar las condiciones de uso y distribución indicadas por la fuente.
-
 ## Archivo utilizado
 
 El proyecto espera trabajar con el archivo:
