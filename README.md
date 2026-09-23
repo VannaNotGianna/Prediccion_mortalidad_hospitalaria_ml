@@ -65,7 +65,7 @@ Estas variables contienen puntuaciones de severidad, estimaciones de supervivenc
 ## Estructura del repositorio
 
 ```text
-support-mortality-ml/
+Prediccion_mortalidad_hospitalaria_ml/
 │
 ├── README.md
 ├── requirements.txt
@@ -138,7 +138,7 @@ Clonar el repositorio:
 
 ```bash
 git clone <URL_DEL_REPOSITORIO>
-cd support-mortality-ml
+cd Prediccion_mortalidad_hospitalaria_ml
 ```
 
 Crear un entorno virtual:
