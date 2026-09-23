@@ -43,7 +43,7 @@ La variable objetivo se interpreta de la siguiente manera:
 - `0`: el paciente sobrevivió al periodo hospitalario.
 - `1`: el paciente falleció durante la hospitalización.
 
-Las instrucciones para obtener y preparar el dataset se encuentran en [`data/README.md`](data/README.md).
+Las instrucciones para obtener y preparar el dataset se encuentran en [`dataset/README.md`](dataset/README.md).
 
 ## Análisis realizado
 
