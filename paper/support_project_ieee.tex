@@ -7,6 +7,8 @@
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{algorithmic}
 \usepackage{graphicx}
+\usepackage[caption=false,font=footnotesize]{subfig} % subfiguras compatibles con IEEEtran
+\usepackage[section]{placeins} % evita que los floats se vayan a secciones/subsecciones posteriores
 \usepackage{textcomp}
 \usepackage{xcolor}
 \usepackage{url}
@@ -79,6 +81,25 @@ Se calculó el porcentaje de datos faltantes respecto del total de 9105 paciente
 
 En esta etapa no se realizó todavía la imputación definitiva de los valores faltantes, ya que modificar los datos antes de completar el análisis exploratorio podría alterar las distribuciones originales. Las estrategias de imputación serán incorporadas posteriormente durante la etapa de preprocesamiento.
 
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{figures/image9.png}
+\caption{Proporción de valores faltantes por variable en el dataset SUPPORT.}
+\label{fig:missingness}
+\end{figure}
+\FloatBarrier
+\subsection{Tratamiento de valores faltantes e imputación}
+
+Como parte del preprocesamiento, se realizó una revisión inicial de los valores faltantes presentes en el dataset. Este análisis permitió identificar las variables con observaciones incompletas y calcular el porcentaje de ausencia para cada una. Entre las variables con mayor proporción de valores faltantes se encontraron \texttt{adlp}, \texttt{urine}, \texttt{glucose}, \texttt{bun}, \texttt{totmcst}, \texttt{alb} e \texttt{income}.
+
+Luego de realizar la limpieza relacionada con tipos de datos, valores imposibles y registros duplicados, se volvió a evaluar la proporción de valores faltantes. Se estableció como criterio eliminar aquellas columnas con más del 50\% de datos ausentes. Bajo este criterio, las variables \texttt{adlp} y \texttt{urine} fueron excluidas del conjunto de datos. La variable \texttt{glucose}, con aproximadamente 49.42\% de valores faltantes, se mantuvo debido a que no superó el umbral definido. Sus valores ausentes se conservaron para un posible tratamiento posterior o para evaluar su impacto durante la etapa de modelado.
+
+Para las variables numéricas \texttt{bun}, \texttt{totmcst}, \texttt{alb}, \texttt{adls}, \texttt{bili}, \texttt{pafi}, \texttt{ph} y \texttt{edu}, los valores faltantes fueron imputados utilizando la mediana de cada variable. Esta medida fue seleccionada debido a su mayor robustez frente a la presencia de valores atípicos.
+
+En el caso de las variables categóricas \texttt{income} y \texttt{sfdm2}, la imputación se realizó utilizando la moda, correspondiente al valor más frecuente de cada variable.
+
+Finalmente, se realizó una verificación posterior al proceso de imputación para identificar los valores faltantes remanentes. Se mantuvieron sin imputar aquellos casos definidos por decisión de diseño, como \texttt{glucose}, así como otras variables que no fueron incluidas en esta etapa inicial de imputación, entre ellas \texttt{scoma}, \texttt{charges}, \texttt{totcst}, \texttt{avtisst}, \texttt{race}, \texttt{meanbp}, \texttt{wblc}, \texttt{hrt}, \texttt{resp}, \texttt{temp}, \texttt{crea} y \texttt{sod}. Estas variables serán revisadas nuevamente antes del entrenamiento de los modelos.
+
 \subsection{Prevención de data leakage}
 Antes de analizar las relaciones entre los predictores y la mortalidad hospitalaria se identificaron variables que podrían introducir fuga de información o incorporar estimaciones pronósticas externas al modelo que se desea desarrollar.
 
@@ -91,14 +112,15 @@ Se analizó la distribución de la variable objetivo \texttt{hospdead} para dete
 
 El análisis permitió evaluar la presencia de un posible desbalance entre clases, aspecto relevante para la posterior selección de métricas de evaluación. En caso de existir una diferencia considerable entre el número de sobrevivientes y fallecidos, métricas como la exactitud global podrían no representar adecuadamente el desempeño del modelo, por lo que será necesario considerar métricas complementarias como sensibilidad, precisión, F1-score o AUC-ROC.
 
-Los resultados obtenidos fueron de [N0] pacientes sobrevivientes ([P0]\%) y [N1] pacientes fallecidos ([P1]\%).
-
-\begin{figure}[htbp]
+\begin{figure}[!t]
 \centering
 \includegraphics[width=\columnwidth]{figures/image7.png}
 \caption{Distribución de la mortalidad hospitalaria.}
 \label{fig:mortalidad}
 \end{figure}
+\FloatBarrier
+
+Los resultados obtenidos fueron de [N0] pacientes sobrevivientes ([P0]\%) y [N1] pacientes fallecidos ([P1]\%).
 
 \subsection{Análisis de variables fisiológicas según mortalidad}
 Con el objetivo de explorar posibles diferencias clínicas entre pacientes sobrevivientes y fallecidos, se analizaron las distribuciones de las principales variables fisiológicas disponibles en el dataset.
@@ -109,67 +131,63 @@ Para cada variable se calcularon la media, mediana y desviación estándar de fo
 
 Este análisis es de carácter exploratorio y permite identificar características potencialmente asociadas con la mortalidad hospitalaria, sin asumir todavía que dichas diferencias impliquen una relación causal o una capacidad predictiva independiente.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\columnwidth]{figures/image3.png}
-\caption{Distribución de \texttt{meanbp} según mortalidad hospitalaria.}
-\label{fig:meanbp}
-\end{figure}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\columnwidth]{figures/image4.png}
-\caption{Distribución de \texttt{hrt} según mortalidad hospitalaria.}
-\label{fig:hrt}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\columnwidth]{figures/image8.png}
-\caption{Distribución de \texttt{resp} según mortalidad hospitalaria.}
-\label{fig:resp}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\columnwidth]{figures/image6.png}
-\caption{Distribución de \texttt{crea} según mortalidad hospitalaria.}
-\label{fig:crea}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\columnwidth]{figures/image5.png}
-\caption{Distribución de \texttt{bili} según mortalidad hospitalaria.}
-\label{fig:bili}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\columnwidth]{figures/image1.png}
-\caption{Distribución de \texttt{alb} según mortalidad hospitalaria.}
-\label{fig:alb}
-\end{figure}
 
 \subsection{Análisis de correlación entre variables numéricas}
 Se evaluó la asociación lineal entre las principales variables numéricas y la mortalidad hospitalaria mediante el coeficiente de correlación de Pearson. Para facilitar la interpretación, se analizaron específicamente las correlaciones de cada característica con la variable objetivo \texttt{hospdead}, ordenándolas según su magnitud absoluta.
 
 Este análisis permite identificar qué variables presentan una mayor asociación lineal con el desenlace hospitalario. Sin embargo, una correlación baja no implica necesariamente una baja utilidad predictiva, ya que pueden existir relaciones no lineales que posteriormente sean identificadas por los modelos de Machine Learning.
 
-\begin{figure}[htbp]
+\begin{figure}[!t]
 \centering
 \includegraphics[width=\columnwidth]{figures/image2.png}
 \caption{Correlación de variables numéricas con la mortalidad hospitalaria.}
 \label{fig:correlacion}
 \end{figure}
 
+\FloatBarrier
+
 \subsection{Identificación de valores atípicos}
+
+
+
+\begin{figure}[!t]
+\centering
+\subfloat[Distribución de \texttt{meanbp} según mortalidad hospitalaria.\label{fig:meanbp}]{%
+  \includegraphics[width=\columnwidth]{figures/image3.png}%
+}\\
+\subfloat[Distribución de \texttt{hrt} según mortalidad hospitalaria.\label{fig:hrt}]{%
+  \includegraphics[width=\columnwidth]{figures/image4.png}%
+}\\
+\subfloat[Distribución de \texttt{resp} según mortalidad hospitalaria.\label{fig:resp}]{%
+  \includegraphics[width=\columnwidth]{figures/image8.png}%
+}
+\caption{Distribuciones de variables clínicas según mortalidad hospitalaria (1/2).}
+\label{fig:dist_clinicas_a}
+\end{figure}
+
+\begin{figure}[!t]
+\centering
+\subfloat[Distribución de \texttt{crea} según mortalidad hospitalaria.\label{fig:crea}]{%
+  \includegraphics[width=\columnwidth]{figures/image6.png}%
+}\\
+\subfloat[Distribución de \texttt{bili} según mortalidad hospitalaria.\label{fig:bili}]{%
+  \includegraphics[width=\columnwidth]{figures/image5.png}%
+}\\
+\subfloat[Distribución de \texttt{alb} según mortalidad hospitalaria.\label{fig:alb}]{%
+  \includegraphics[width=\columnwidth]{figures/image1.png}%
+}
+\caption{Distribuciones de variables clínicas según mortalidad hospitalaria (2/2).}
+\label{fig:dist_clinicas_b}
+\end{figure}
+
 Se evaluó la presencia de valores atípicos en las principales variables fisiológicas mediante el criterio del rango intercuartílico (IQR). Para cada variable se calcularon el primer cuartil (Q1), tercer cuartil (Q3) y el rango intercuartílico, definiendo como potenciales valores atípicos aquellas observaciones inferiores a $Q1 - 1.5\cdot IQR$ o superiores a $Q3 + 1.5\cdot IQR$.
 
 Se calculó tanto el número como el porcentaje de observaciones identificadas como atípicas para cada variable. Sin embargo, estos valores no fueron eliminados automáticamente. Debido a que el dataset corresponde a pacientes con enfermedades graves, mediciones fisiológicas extremas pueden representar condiciones clínicas reales y no necesariamente errores de registro.
 
 Por esta razón, el análisis de valores atípicos se utiliza en esta etapa principalmente para caracterizar la distribución de los datos. Cualquier tratamiento posterior deberá considerar tanto criterios estadísticos como la plausibilidad clínica de las observaciones.
 
+\FloatBarrier
 \subsection{Principales hallazgos del EDA}
 El análisis exploratorio permitió caracterizar la estructura y calidad del dataset SUPPORT antes de realizar cualquier procedimiento de modelado. El conjunto presenta una combinación de variables demográficas, diagnósticas y fisiológicas, así como una proporción considerable de valores faltantes en determinadas características.
 
