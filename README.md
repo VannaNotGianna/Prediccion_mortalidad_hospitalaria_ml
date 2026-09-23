@@ -94,9 +94,6 @@ Prediccion_mortalidad_hospitalaria_ml/
 │   ├── main.tex
 │   ├── IEEEtran.cls
 │   └── figures/
-│
-└── docs/
-    └── project_notes.md
 ```
 ## Notebooks
 
@@ -104,6 +101,7 @@ Los notebooks se ejecutarán en el siguiente orden:
 
 1. `01_eda.ipynb`  
    Análisis exploratorio, valores faltantes, distribución de la variable objetivo, correlaciones, valores atípicos
+    - Alternativamente se puede acceder desde colab: [01_eda.ipynb](https://colab.research.google.com/drive/1jOFwgy5sXQwkk3EXLisNAm7pfX9ziHzh?usp=sharing)
    
 3. `02_preprocessing.ipynb`  
    Preparación de los datos, imputación, codificación, escalamiento y selección de variables.
