@@ -71,7 +71,7 @@ support-mortality-ml/
 ├── requirements.txt
 ├── .gitignore
 │
-├── data/
+├── dataset/
 │   ├── README.md
 │   └── raw/
 │       └── support2.csv
