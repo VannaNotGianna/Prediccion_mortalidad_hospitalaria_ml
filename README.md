@@ -8,8 +8,6 @@ Proyecto académico desarrollado en la carrera de **Ciencia de la Computación**
 - Marialejandra Bautista Gastelo
 - Elizabeth Huaman Santillan
 
-Lima, Perú.
-
 ## Descripción del proyecto
 
 El proyecto estudia la predicción de mortalidad hospitalaria en pacientes con enfermedades graves utilizando variables demográficas, clínicas y fisiológicas.
