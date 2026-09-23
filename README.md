@@ -103,19 +103,21 @@ support-mortality-ml/
 Los notebooks se ejecutarán en el siguiente orden:
 
 1. `01_eda.ipynb`  
-   Análisis exploratorio, valores faltantes, distribución de la variable objetivo, correlaciones, valores atípicos y revisión de *data leakage*.
-
-2. `02_preprocessing.ipynb`  
+   Análisis exploratorio, valores faltantes, distribución de la variable objetivo, correlaciones, valores atípicos
+   
+3. `02_preprocessing.ipynb`  
    Preparación de los datos, imputación, codificación, escalamiento y selección de variables.
 
-3. `03_baseline.ipynb`  
+4. `03_baseline.ipynb`  
    Construcción y evaluación de un modelo base utilizando principalmente variables demográficas.
 
-4. `04_modeling.ipynb`  
+5. `04_modeling.ipynb`  
    Entrenamiento de los modelos seleccionados incorporando variables clínicas y fisiológicas.
 
-5. `05_evaluation.ipynb`  
+6. `05_evaluation.ipynb`  
    Comparación de resultados y evaluación final mediante las métricas definidas para el proyecto.
+
+* Los notebooks 2,3,4,5 y 6, aún no están disponibles
 
 ## Requisitos
 
