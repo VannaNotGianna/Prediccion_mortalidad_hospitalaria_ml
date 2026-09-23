@@ -8,8 +8,6 @@ Proyecto desarrollado como parte de la carrera de **Ciencia de la Computación**
 - Marialejandra Bautista Gastelo
 - Elizabeth Huaman Santillan
 
-**Lima, Perú**
-
 ## Descripción
 
 Este proyecto aborda la predicción de mortalidad hospitalaria en pacientes con enfermedades graves utilizando información demográfica, clínica y fisiológica. El trabajo se basa en el dataset **SUPPORT (Study to Understand Prognoses Preferences Outcomes and Risks of Treatment)** y plantea un problema de clasificación binaria cuya variable objetivo es `hospdead`.
