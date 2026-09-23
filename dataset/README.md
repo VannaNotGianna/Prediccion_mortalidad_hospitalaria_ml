@@ -27,7 +27,7 @@ data/raw/support2.csv
 La estructura esperada es:
 
 ```text
-data/
+dataset/
 ├── README.md
 └── raw/
     └── support2.csv
