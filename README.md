@@ -1,5 +1,4 @@
 # Modelo predictivo de Mortalidad Hospitalaria en pacientes con enfermedades graves
-# Predicción de Mortalidad Hospitalaria mediante Machine Learning con el Dataset SUPPORT
 
 Proyecto desarrollado como parte de la carrera de **Ciencia de la Computación** en la **Universidad de Ingeniería y Tecnología (UTEC)**.
 
