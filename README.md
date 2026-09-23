@@ -100,9 +100,6 @@ support-mortality-ml/
 └── docs/
     └── project_notes.md
 ```
-
-No todas las carpetas necesitan contener archivos desde el inicio. La estructura puede completarse conforme avance el proyecto.
-
 ## Notebooks
 
 Los notebooks se ejecutarán en el siguiente orden:
@@ -131,10 +128,9 @@ Las principales dependencias del proyecto son:
 - pandas
 - numpy
 - matplotlib
-- jupyter
 - scikit-learn
 
-Las versiones definitivas deberán registrarse en `requirements.txt` una vez que el entorno de trabajo quede estable.
+Las versiones definitivas se encuentran en `requirements.txt`
 
 ## Instalación
 
