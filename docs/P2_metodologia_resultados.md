@@ -15,7 +15,7 @@ documento a partir de esas tablas.
 | Baseline | `DummyClassifier(prior)` de P1 + baseline demográfico, §3 |
 | ≥ 2 modelos implementados y comparados | Reg. logística, árbol, Random Forest, Gradient Boosting, §3 y §5 |
 | Diseño experimental, validación, ajuste de hiperparámetros | `scripts/run_p2.py`, §4 |
-| Métricas apropiadas y justificadas | `src/evaluation.py`, §4.3 |
+| Métricas apropiadas y justificadas | `src/evaluation.py`, §4 |
 | Resultados con tablas y visualizaciones | `results/tables/p2_*`, `results/figures/p2_*`, §5 |
 | Análisis de errores e importancia de variables | §6, §7 |
 | Discusión, limitaciones, ética, conclusiones | §8, §9 |
@@ -80,7 +80,7 @@ En 3 de 4 modelos la CV prefirió **añadir indicadores de faltante**, lo que re
 | Reg. logística | 0.814 | 0.804 ± 0.007 | 0.609 |
 | Árbol | 0.819 | 0.781 ± 0.012 | 0.558 |
 | Random Forest | 0.904 | 0.818 ± 0.010 | 0.627 |
-| **Gradient Boosting** | 0.947 | **0.824 ± 0.008** | **0.647** |
+| **Gradient Boosting** | 0.947 | **0.823 ± 0.008** | **0.646** |
 
 La brecha train−CV (GB 0.12, RF 0.09, logística 0.01) muestra la mayor varianza de los ensambles, aunque generalizan mejor que la logística. La curva de validación del árbol (`p2_tree_validation_curve.png`) muestra el compromiso sesgo-varianza: sin poda, el AUC de CV alcanza su máximo con `max_depth = 5` (0.774); a profundidad 20, el AUC de train llega a 0.999 y el de CV cae a 0.609.
 
@@ -91,10 +91,10 @@ Métricas de umbral con τ elegido en CV; AUC y AP no dependen del umbral.
 | Modelo | τ | Accuracy | Precision | Recall | Especificidad | F1 | ROC-AUC [IC 95 %] | AP [IC 95 %] | Brier |
 |---|---|---|---|---|---|---|---|---|---|
 | Dummy (P1) | 0.50 | 0.741 | 0.000 | 0.000 | 1.000 | 0.000 | 0.500 | 0.259 | 0.192 |
-| Reg. logística | 0.53 | 0.767 | 0.540 | 0.695 | 0.792 | 0.607 | 0.820 [0.800, 0.842] | 0.629 [0.583, 0.675] | 0.171 |
+| Reg. logística | 0.53 | 0.767 | 0.539 | 0.695 | 0.792 | 0.607 | 0.820 [0.800, 0.842] | 0.629 [0.583, 0.675] | 0.171 |
 | Árbol | 0.31 | 0.753 | 0.518 | 0.661 | 0.785 | 0.581 | 0.799 [0.778, 0.821] | 0.575 [0.527, 0.626] | 0.149 |
 | Random Forest | 0.54 | 0.778 | 0.559 | 0.674 | 0.814 | 0.611 | 0.832 [0.813, 0.853] | 0.641 [0.595, 0.688] | 0.160 |
-| **Gradient Boosting** | 0.29 | 0.765 | 0.536 | 0.703 | 0.787 | 0.608 | **0.834 [0.815, 0.854]** | **0.655 [0.611, 0.700]** | **0.137** |
+| **Gradient Boosting** | 0.29 | 0.765 | 0.535 | 0.703 | 0.787 | 0.608 | **0.834 [0.814, 0.854]** | **0.655 [0.611, 0.700]** | **0.136** |
 
 Con τ = 0.5, GB obtiene accuracy 0.804 pero recall 0.443: con el umbral por defecto el modelo deja sin detectar más de la mitad de los fallecimientos. Este es el motivo para fijar τ con CV.
 
@@ -106,22 +106,22 @@ Con τ = 0.5, GB obtiene accuracy 0.804 pero recall 0.443: con el umbral por def
 | Reg. logística − GB | −0.015 | [−0.024, −0.005] | GB ligeramente superior |
 | Árbol − GB | −0.035 | [−0.049, −0.020] | GB superior |
 
-El AUC de test de GB (0.834) es coherente con su AUC de CV (0.824): no hay indicios de sobreajuste al conjunto de validación.
+El AUC de test de GB (0.834) es coherente con su AUC de CV (0.823): no hay indicios de sobreajuste al conjunto de validación.
 
-**Calibración** (`p2_calibration.png`): GB está bien calibrado (Brier 0.137, log-loss 0.422). La logística y RF eligieron `class_weight="balanced"`, que desplaza las probabilidades hacia la clase positiva: sobrestiman sistemáticamente el riesgo, por eso su τ óptimo está cerca de 0.5 y su Brier es peor (0.171 y 0.160) aunque discriminen bien. Si se quisieran usar sus probabilidades como riesgos absolutos, habría que recalibrarlas.
+**Calibración** (`p2_calibration.png`): GB está bien calibrado (Brier 0.136, log-loss 0.422). La logística y RF eligieron `class_weight="balanced"`, que desplaza las probabilidades hacia la clase positiva: sobrestiman sistemáticamente el riesgo, por eso su τ óptimo está cerca de 0.5 y su Brier es peor (0.171 y 0.160) aunque discriminen bien. Si se quisieran usar sus probabilidades como riesgos absolutos, habría que recalibrarlas.
 
 ### 5.3 Pregunta de investigación: ¿fisiológicas vs. demográficas?
 
 | Conjunto de variables | AUC test logística | AUC test GB | AUC CV logística | AUC CV GB |
 |---|---|---|---|---|
-| Solo demográficas | 0.567 | 0.569 | 0.570 | 0.576 |
-| Demográficas + fisiológicas | 0.758 | 0.797 | 0.751 | 0.785 |
-| Todas (+ clínicas) | 0.820 | 0.834 | 0.804 | 0.824 |
+| Solo demográficas | 0.567 | 0.569 | 0.570 | 0.575 |
+| Demográficas + fisiológicas | 0.758 | 0.796 | 0.751 | 0.785 |
+| Todas (+ clínicas) | 0.820 | 0.834 | 0.804 | 0.823 |
 
 - Añadir las variables fisiológicas del día 3 al modelo demográfico eleva el AUC en **+0.192** (IC 95 % [0.161, 0.227]) con regresión logística y en **+0.227** con GB. El modelo completo supera al demográfico en **+0.269** [0.236, 0.304].
 - Con solo variables demográficas, GB no mejora a la logística (ΔAUC +0.002, IC [−0.019, 0.024]): con 5 variables débiles no hay estructura no lineal que aprovechar.
-- Con variables fisiológicas, GB supera a la logística (0.797 vs. 0.758): las relaciones fisiológicas con la mortalidad no son lineales (por ejemplo, riesgo en ambos extremos de presión arterial o temperatura).
-- Diagnóstico, comorbilidad y estado funcional aportan un incremento adicional menor (+0.04 a +0.06).
+- Con variables fisiológicas, GB supera a la logística (0.796 vs. 0.758): las relaciones fisiológicas con la mortalidad no son lineales (por ejemplo, riesgo en ambos extremos de presión arterial o temperatura).
+- Diagnóstico, comorbilidad y estado funcional aportan un incremento adicional menor (+0.062 en logística, +0.038 en GB).
 
 **Respuesta:** las variables demográficas por sí solas apenas discriminan (AUC ≈ 0.57, cerca del azar). Las fisiológicas aportan la mayor parte de la capacidad predictiva, lo que confirma la hipótesis de P1.
 
@@ -160,9 +160,9 @@ Resultado: TP = 332, FN = 140, FP = 288, TN = 1061.
 
 En los grupos de baja mortalidad casi no se detectan muertes; en los de alta mortalidad casi todos los pacientes reciben una alerta.
 
-**Por sexo, raza, edad e ingreso**: AUC mujeres 0.849 vs. hombres 0.825 (FNR 0.26 vs. 0.32); blancos 0.835 vs. negros 0.802 (FNR 0.30 vs. 0.34). Por edad, el AUC es estable (0.83–0.84). Los grupos `asian` (n = 17), `other` (n = 14) y raza faltante (n = 9) son demasiado pequeños para extraer conclusiones. Estas diferencias son descriptivas y no se probó su significancia.
+**Por sexo, raza, edad e ingreso**: AUC mujeres 0.849 vs. hombres 0.825 (FNR 0.26 vs. 0.32); blancos 0.835 vs. negros 0.802 (FNR 0.30 vs. 0.34). Por edad, el AUC es estable (0.825–0.844). Los grupos `asian` (n = 17), `other` (n = 14) y raza faltante (n = 9) son demasiado pequeños para extraer conclusiones. Estas diferencias son descriptivas y no se probó su significancia.
 
-**Faltantes**: los TP tienen más glucosa/BUN faltantes que los FN (57 % vs. 41 %), lo que es coherente con que la CV haya elegido indicadores de faltante.
+**Faltantes**: los TP tienen más valores faltantes que los FN en glucosa (57.5 % vs. 40.7 %) y BUN (56.6 % vs. 39.3 %), lo que es coherente con que la CV haya elegido indicadores de faltante.
 
 ## 8. Discusión y limitaciones
 
@@ -176,7 +176,7 @@ En los grupos de baja mortalidad casi no se detectan muertes; en los de alta mor
 
 ## 9. Conclusiones
 
-1. Todos los modelos superan ampliamente al baseline (AUC 0.80–0.83 vs. 0.50). El modelo final, Gradient Boosting, obtiene AUC 0.834 [0.815, 0.854], AP 0.655 y, con τ = 0.29, recall 0.70 y precisión 0.54, con buena calibración.
+1. Todos los modelos superan ampliamente al baseline (AUC 0.799–0.834 vs. 0.50). El modelo final, Gradient Boosting, obtiene AUC 0.834 [0.814, 0.854], AP 0.655 y, con τ = 0.29, recall 0.70 y precisión 0.54, con buena calibración.
 2. Las variables fisiológicas del día 3 explican la mayor parte del poder predictivo: +0.19 a +0.23 AUC sobre un modelo solo demográfico (≈ 0.57). `scoma` es el predictor individual más fuerte.
 3. RF y GB son estadísticamente indistinguibles en el test; la regresión logística queda ligeramente por debajo, pero es interpretable.
 4. La imputación tiene un efecto mínimo; la recalibración es necesaria cuando se usan pesos de clase; y con probabilidades calibradas el umbral por costo sigue τ* = 1/(1+R), mientras que los umbrales por grupo diagnóstico no mejoran el desempeño global (§10).

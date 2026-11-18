@@ -3,7 +3,7 @@
 Convención: la clase positiva es ``hospdead = 1`` (fallecimiento
 hospitalario). Matriz de confusión con filas = real, columnas = predicho.
 
-Fórmulas (Formulario P2):
+Fórmulas (diapositivas del curso):
     Accuracy    = (TP + TN) / N
     Precision   = TP / (TP + FP)
     Recall/TPR  = TP / (TP + FN)

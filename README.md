@@ -107,9 +107,9 @@ Prediccion_mortalidad_hospitalaria_ml/
 │   └── p2x_run_metadata.json
 │
 ├── docs/
+│   ├── Guia_Proyecto_Final_Machine_Learning_ES_ACTUALIZADO.pdf   # Guía oficial del proyecto
 │   ├── P2_INSTRUCCIONES.md            # Contrato de datos P1 → P2
-│   ├── P2_metodologia_resultados.md   # Decisiones metodológicas y resultados de P2
-│   └── ...                            # Guía, formulario y material del curso
+│   └── P2_metodologia_resultados.md   # Decisiones metodológicas y resultados de P2
 │
 └── paper/
     ├── support_project_ieee.tex
@@ -244,7 +244,7 @@ El documento utiliza LaTeX con la clase `IEEEtran` en formato de conferencia.
 ## Estado del proyecto
 
 - **P1** (EDA): completado.
-- **P2** (modelado y evaluación): pipeline implementado y resultados generados. Se compararon regresión logística, árbol de decisión, Random Forest y Gradient Boosting frente al baseline. El modelo seleccionado por validación cruzada (Gradient Boosting) obtiene en prueba ROC-AUC 0.834 (IC 95 % 0.815–0.854), frente a 0.567 de un modelo solo con variables demográficas. Detalles en `docs/P2_metodologia_resultados.md`.
+- **P2** (modelado y evaluación): pipeline implementado y resultados generados. Se compararon regresión logística, árbol de decisión, Random Forest y Gradient Boosting frente al baseline. El modelo seleccionado por validación cruzada (Gradient Boosting) obtiene en prueba ROC-AUC 0.834 (IC 95 % 0.814–0.854), frente a 0.567 de un modelo solo con variables demográficas. Detalles en `docs/P2_metodologia_resultados.md`.
 - Extensiones: la imputación por mediana se mantuvo (ninguna alternativa la mejora de forma relevante); la recalibración corrige la sobrestimación de riesgo de los modelos con pesos de clase; se analizaron umbrales con costos explícitos y por grupo diagnóstico.
 - Paper actualizado con las secciones de P2 (`paper/support_project_ieee.pdf`, 10 páginas).
 - Pendiente: presentación de P2.
