@@ -1,0 +1,8 @@
+Indicador,Valor
+Total de pacientes,9105
+Pacientes con hday > 1,3157
+Pacientes con slos < 3,0
+Pacientes con slos = 3,347
+Fallecidos hospitalarios,2360
+Fallecidos con d.time < 3,0
+Fallecidos con slos = 3 y d.time = 3,138
