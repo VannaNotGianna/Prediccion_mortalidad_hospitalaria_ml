@@ -47,7 +47,7 @@ Las instrucciones para obtener y preparar el dataset se encuentran en [`dataset/
 
 ## Análisis realizado
 
-La primera etapa del proyecto corresponde al análisis exploratorio de datos (EDA). Actualmente se incluyen los siguientes puntos:
+**P1 — Análisis exploratorio (EDA):**
 
 - revisión de valores faltantes;
 - análisis de la distribución de `hospdead`;
@@ -56,11 +56,17 @@ La primera etapa del proyecto corresponde al análisis exploratorio de datos (ED
 - identificación de valores atípicos mediante el rango intercuartílico (IQR);
 - revisión de variables con riesgo de *data leakage*.
 
-Para reducir el riesgo de obtener resultados artificialmente optimistas, se consideran para exclusión como predictores principales las variables:
+Para evitar resultados artificialmente optimistas se excluyen como predictores las puntuaciones de severidad, estimaciones de supervivencia, pronósticos médicos y órdenes de no reanimación (`sps`, `aps`, `surv2m`, `surv6m`, `prg2m`, `prg6m`, `dnr`, `dnrday`), así como las variables que solo se conocen después del desenlace o resumen toda la estadía (`death`, `slos`, `d.time`, `charges`, `totcst`, `totmcst`, `avtisst`, `sfdm2`, `adlsc`).
 
-`SPS`, `APS`, `surv2m`, `surv6m`, `prg2m`, `prg6m`, `dnr` y `dnrday`.
+**P2 — Modelado y evaluación:**
 
-Estas variables contienen puntuaciones de severidad, estimaciones de supervivencia, pronósticos médicos o información relacionada con órdenes de no reanimación.
+- preprocesamiento dentro de `Pipeline` (sin fuga entre folds) y comparación de estrategias de imputación;
+- baseline (`DummyClassifier`) y baseline demográfico;
+- regresión logística, árbol de decisión, Random Forest y Gradient Boosting, ajustados con validación cruzada estratificada;
+- métricas en prueba con intervalos bootstrap, calibración y recalibración;
+- comparación demográficas vs. fisiológicas (pregunta de investigación);
+- importancia de variables, análisis de errores y subgrupos;
+- umbrales con costos clínicos explícitos y por grupo diagnóstico.
 
 ## Estructura del repositorio
 
@@ -68,54 +74,66 @@ Estas variables contienen puntuaciones de severidad, estimaciones de supervivenc
 Prediccion_mortalidad_hospitalaria_ml/
 │
 ├── README.md
+├── LICENSE
 ├── requirements.txt
-├── .gitignore
+├── preprocessing.py               # Carga de particiones y preprocesador (sin ajustar)
+│
+├── src/                           # Código reutilizable (se importa)
+│   ├── models.py                  # Pipelines y espacios de hiperparámetros
+│   └── evaluation.py              # Métricas, umbrales, bootstrap y figuras
+│
+├── scripts/                       # Puntos de entrada (se ejecutan)
+│   ├── run_p2.py                  # Experimento principal de P2
+│   ├── run_p2_extensions.py       # Imputación, recalibración y umbrales por costo/grupo
+│   └── make_paper_assets.py       # Tablas LaTeX y figuras del paper desde results/
+│
+├── tests/
+│   └── test_pipeline.py           # Pruebas de integridad, imputación y no-fuga
 │
 ├── dataset/
 │   ├── README.md
-│   └── raw/
-│       └── support2.csv
+│   ├── raw/support2.csv           # Datos originales (no se modifican)
+│   └── processed/                 # Índices train/test y configuración
 │
 ├── notebooks/
 │   ├── 01_eda.ipynb
-│   ├── 02_preprocessing.ipynb
-│   ├── 03_baseline.ipynb
-│   ├── 04_modeling.ipynb
-│   └── 05_evaluation.ipynb
-│
-├── src/
-│   └── utils.py
+│   ├── 02_preprocessing_baseline.ipynb
+│   └── 03_modeling_evaluation.ipynb
 │
 ├── results/
-│   ├── figures/
-│   └── tables/
+│   ├── figures/                   # p2_*.png (principal), p2x_*.png (extensiones)
+│   ├── tables/                    # baseline_*.csv, temporal_audit.csv, p2_*.csv, p2x_*.csv
+│   ├── p2_run_metadata.json       # Semilla, versiones, modelo y umbral seleccionados
+│   └── p2x_run_metadata.json
 │
-├── paper/
-│   ├── main.tex
-│   ├── IEEEtran.cls
-│   └── figures/
+├── docs/
+│   ├── P2_INSTRUCCIONES.md            # Contrato de datos P1 → P2
+│   ├── P2_metodologia_resultados.md   # Decisiones metodológicas y resultados de P2
+│   └── ...                            # Guía, formulario y material del curso
+│
+└── paper/
+    ├── support_project_ieee.tex
+    ├── support_project_ieee.pdf   # Versión compilada (P2)
+    ├── IEEEtran.cls
+    ├── tables/                    # Generadas por scripts/make_paper_assets.py
+    └── figures/                   # image*.png (P1) y p2*.png (copias de results/figures)
 ```
-## Notebooks
 
-Los notebooks se ejecutarán en el siguiente orden:
+Los modelos serializados (`results/models/`) no se versionan: se regeneran con `scripts/run_p2.py`.
 
-1. `01_eda.ipynb`  
-   Análisis exploratorio, valores faltantes, distribución de la variable objetivo, correlaciones, valores atípicos
-    - Alternativamente se puede acceder desde colab: [01_eda.ipynb](https://colab.research.google.com/drive/1jOFwgy5sXQwkk3EXLisNAm7pfX9ziHzh?usp=sharing)
-   
-3. `02_preprocessing.ipynb`  
-   Preparación de los datos, imputación, codificación, escalamiento y selección de variables.
+## Notebooks y scripts
 
-4. `03_baseline.ipynb`  
-   Construcción y evaluación de un modelo base utilizando principalmente variables demográficas.
+Ejecutar en el siguiente orden:
 
-5. `04_modeling.ipynb`  
-   Entrenamiento de los modelos seleccionados incorporando variables clínicas y fisiológicas.
+1. `01_eda.ipynb` — Análisis exploratorio: valores faltantes, distribución de la variable objetivo, correlaciones, valores atípicos y riesgo de *data leakage*.
+    - También disponible en Colab: [01_eda.ipynb](https://colab.research.google.com/drive/1jOFwgy5sXQwkk3EXLisNAm7pfX9ziHzh?usp=sharing)
+2. `02_preprocessing_baseline.ipynb` — Exclusión de variables con fuga, partición estratificada 80/20, preprocesador, baseline `DummyClassifier` y auditoría temporal.
+3. `python scripts/run_p2.py` — Selección de hiperparámetros por validación cruzada, evaluación en prueba, comparación demográficas vs. fisiológicas, interpretación y análisis de errores.
+4. `python scripts/run_p2_extensions.py` — Comparación de imputaciones, recalibración de modelos con pesos de clase, umbral con costos clínicos explícitos y umbrales por grupo diagnóstico.
+5. `03_modeling_evaluation.ipynb` — Presenta, explica y verifica los resultados de P2 (si faltan resultados, ejecuta los scripts automáticamente).
+6. `python scripts/make_paper_assets.py` — Genera las tablas LaTeX (`paper/tables/`) y las figuras del paper a partir de `results/`.
 
-6. `05_evaluation.ipynb`  
-   Comparación de resultados y evaluación final mediante las métricas definidas para el proyecto.
-
-* Los notebooks 2,3,4,5 y 6, aún no están disponibles
+La metodología y los resultados de P2 están documentados en [`docs/P2_metodologia_resultados.md`](docs/P2_metodologia_resultados.md).
 
 ## Requisitos
 
@@ -127,6 +145,8 @@ Las principales dependencias del proyecto son:
 - numpy
 - matplotlib
 - scikit-learn
+- scipy, joblib
+- nbformat, nbclient, ipykernel, pytest (ejecución de notebooks y pruebas)
 
 Las versiones definitivas se encuentran en `requirements.txt`
 
@@ -168,37 +188,48 @@ pip install -r requirements.txt
 Seguir las instrucciones indicadas en:
 
 ```text
-data/README.md
+dataset/README.md
 ```
 
 El archivo final utilizado por los notebooks debe quedar en:
 
 ```text
-data/raw/support2.csv
+dataset/raw/support2.csv
 ```
 
 ## Ejecución
 
-Iniciar Jupyter:
+Desde la raíz del repositorio:
 
 ```bash
-jupyter notebook
+python -m pytest -q             # pruebas de integridad, imputación y no-fuga
+python scripts/run_p2.py                # experimento principal de P2 (~5 min)
+python scripts/run_p2_extensions.py     # extensiones (~8 min)
+python scripts/make_paper_assets.py     # tablas y figuras del paper
+jupyter notebook                        # abrir los notebooks de notebooks/ en orden
 ```
 
-Luego abrir los notebooks desde la carpeta `notebooks/` y ejecutarlos en orden.
+Para compilar el paper se puede usar Overleaf o cualquier distribución LaTeX (pdflatex). Localmente se usó [Tectonic](https://tectonic-typesetting.github.io/):
+
+```bash
+cd paper
+tectonic support_project_ieee.tex
+```
+
+`python scripts/run_p2.py --quick` ejecuta una búsqueda reducida para pruebas rápidas y escribe en `results/quick/` (no versionado), sin sobrescribir los resultados oficiales.
 
 Los notebooks deben poder ejecutarse desde un entorno limpio después de instalar las dependencias y preparar el dataset.
 
 ## Resultados
 
-Las figuras y tablas relevantes para el análisis se almacenarán en:
+Las figuras y tablas del análisis se almacenan en:
 
 ```text
 results/figures/
 results/tables/
 ```
 
-El objetivo es que los resultados incluidos en el paper puedan ser generados nuevamente a partir del código del repositorio.
+Todos los resultados incluidos en el paper se regeneran a partir del código del repositorio (`scripts/`), y las tablas del paper se construyen directamente desde `results/tables/`.
 
 ## Documento
 
@@ -212,7 +243,11 @@ El documento utiliza LaTeX con la clase `IEEEtran` en formato de conferencia.
 
 ## Estado del proyecto
 
-Actualmente se encuentra desarrollada la etapa de análisis exploratorio. Las siguientes etapas estarán disponibles pronto.
+- **P1** (EDA): completado.
+- **P2** (modelado y evaluación): pipeline implementado y resultados generados. Se compararon regresión logística, árbol de decisión, Random Forest y Gradient Boosting frente al baseline. El modelo seleccionado por validación cruzada (Gradient Boosting) obtiene en prueba ROC-AUC 0.834 (IC 95 % 0.815–0.854), frente a 0.567 de un modelo solo con variables demográficas. Detalles en `docs/P2_metodologia_resultados.md`.
+- Extensiones: la imputación por mediana se mantuvo (ninguna alternativa la mejora de forma relevante); la recalibración corrige la sobrestimación de riesgo de los modelos con pesos de clase; se analizaron umbrales con costos explícitos y por grupo diagnóstico.
+- Paper actualizado con las secciones de P2 (`paper/support_project_ieee.pdf`, 10 páginas).
+- Pendiente: presentación de P2.
 
 ## Referencias
 

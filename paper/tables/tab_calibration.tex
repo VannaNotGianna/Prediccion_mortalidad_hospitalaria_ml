@@ -1,0 +1,22 @@
+\begin{table*}[!tp]
+\centering
+\footnotesize
+\caption{Recalibración con \texttt{CalibratedClassifierCV} (5 folds dentro de entrenamiento). $^{*}$Método elegido por menor Brier \textit{out-of-fold} en entrenamiento.}
+\label{tab:calibration}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llccccc}
+\toprule
+Modelo & Calibración & Brier OOF & Brier test & ECE test & Log-loss test & AUC test \\
+\midrule
+Reg. logística & Sin recalibrar & 0.179 & 0.171 & 0.166 & 0.519 & 0.820 \\
+ & Platt$^{*}$ & 0.146 & 0.141 & 0.024 & 0.438 & 0.820 \\
+ & Isotónica & 0.146 & 0.142 & 0.020 & 0.439 & 0.818 \\
+Random Forest & Sin recalibrar & 0.164 & 0.160 & 0.140 & 0.484 & 0.832 \\
+ & Platt & 0.143 & 0.139 & 0.035 & 0.429 & 0.830 \\
+ & Isotónica$^{*}$ & 0.142 & 0.139 & 0.026 & 0.428 & 0.830 \\
+Gradient Boosting & Sin recalibrar & 0.140 & 0.136 & 0.020 & 0.422 & 0.834 \\
+ & Platt$^{*}$ & 0.139 & 0.135 & 0.024 & 0.419 & 0.838 \\
+ & Isotónica & 0.139 & 0.135 & 0.024 & 0.416 & 0.838 \\
+\bottomrule
+\end{tabular}
+\end{table*}

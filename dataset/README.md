@@ -21,7 +21,7 @@ support2.csv
 Una vez descargado, debe colocarse en:
 
 ```text
-data/raw/support2.csv
+dataset/raw/support2.csv
 ```
 
 La estructura esperada es:
@@ -29,8 +29,12 @@ La estructura esperada es:
 ```text
 dataset/
 ├── README.md
-└── raw/
-    └── support2.csv
+├── raw/
+│   └── support2.csv                  # Datos originales (no se modifican)
+└── processed/
+    ├── train_indices.csv             # Índices originales del conjunto de entrenamiento (7284)
+    ├── test_indices.csv              # Índices originales del conjunto de prueba (1821)
+    └── preprocessing_config.json     # Variables seleccionadas, excluidas y parámetros
 ```
 
 ## Descripción general
@@ -50,8 +54,8 @@ hospdead
 
 donde:
 
-- `0` indica que el paciente sobrevivió al periodo hospitalario;
-- `1` indica que el paciente falleció durante la hospitalización.
+- `0` indica que el paciente sobrevivió al periodo hospitalario (6745 pacientes, 74.08 %);
+- `1` indica que el paciente falleció durante la hospitalización (2360 pacientes, 25.92 %).
 
 Entre las variables disponibles se encuentran:
 
@@ -77,18 +81,26 @@ Entre las variables disponibles se encuentran:
 
 1. Descargar el dataset desde la fuente indicada.
 2. Verificar que el archivo tenga el nombre `support2.csv`.
-3. Crear la carpeta `data/raw/` si todavía no existe.
+3. Crear la carpeta `dataset/raw/` si todavía no existe.
 4. Copiar el archivo en:
 
 ```text
-data/raw/support2.csv
+dataset/raw/support2.csv
 ```
 
-5. Ejecutar los notebooks desde la carpeta `notebooks/`.
+5. Ejecutar los notebooks desde la carpeta `notebooks/` o los scripts desde la raíz del repositorio (ver el README principal).
 
-## Lectura desde los notebooks
+## Lectura desde el código
 
-Los notebooks deben cargar el archivo utilizando una ruta relativa al proyecto. Por ejemplo:
+La forma recomendada de cargar los datos es mediante el módulo `preprocessing.py` de la raíz, que recupera exactamente las particiones fijadas en P1:
+
+```python
+from preprocessing import load_data
+
+X_train, X_test, y_train, y_test = load_data()
+```
+
+Si se necesita leer el archivo original directamente, usar una ruta relativa al proyecto:
 
 ```python
 from pathlib import Path
@@ -99,49 +111,30 @@ PROJECT_ROOT = Path.cwd()
 if PROJECT_ROOT.name == "notebooks":
     PROJECT_ROOT = PROJECT_ROOT.parent
 
-DATA_PATH = PROJECT_ROOT / "data" / "raw" / "support2.csv"
+DATA_PATH = PROJECT_ROOT / "dataset" / "raw" / "support2.csv"
 
 df_raw = pd.read_csv(DATA_PATH)
 ```
 
 Esto evita depender de rutas locales específicas de una computadora.
 
-## Datos originales
+## Datos originales y procesados
 
-El archivo ubicado en `data/raw/` debe considerarse una copia de los datos originales.
+El archivo ubicado en `dataset/raw/` es una copia de los datos originales y no debe modificarse.
 
-No se recomienda modificarlo manualmente.
+Cualquier transformación, limpieza, imputación o selección de variables se realiza mediante código. Los datos procesados **no** se guardan como un nuevo CSV: en `dataset/processed/` solo se guardan los índices de la partición train/test y la configuración. La imputación, codificación y escalamiento se aprenden dentro de un `Pipeline`, ajustado únicamente con los datos de entrenamiento, para evitar fuga de información.
 
-Cualquier transformación, limpieza, imputación o selección de variables debe realizarse mediante código dentro de los notebooks o scripts del proyecto.
-
-Si posteriormente se decide guardar una versión procesada del dataset, puede utilizarse una estructura como:
-
-```text
-data/
-├── raw/
-│   └── support2.csv
-└── processed/
-    └── support2_processed.csv
-```
-
-La versión procesada debe poder regenerarse a partir del archivo original y del código del repositorio.
+Los archivos de `dataset/processed/` se generan con `notebooks/02_preprocessing_baseline.ipynb` y pueden regenerarse a partir del archivo original (partición estratificada 80/20, semilla 42).
 
 ## Data leakage
 
-Antes del modelado se identificaron variables que pueden incorporar información pronóstica previa o resultados de modelos ya desarrollados.
+Antes del modelado se identificaron variables que no deben usarse como predictores. Todas se registran en `preprocessing_config.json` (`initial_excluded_columns`):
 
-Las siguientes variables se consideran para exclusión como predictores principales:
+- **Puntuaciones y pronósticos previos:** `sps`, `aps`, `surv2m`, `surv6m`, `prg2m`, `prg6m`.
+- **Órdenes de no reanimación:** `dnr`, `dnrday`.
+- **Desenlaces o información posterior / de toda la estadía:** `death`, `slos`, `d.time`, `charges`, `totcst`, `totmcst`, `avtisst`, `sfdm2`, `adlsc`.
 
-```text
-sps
-aps
-surv2m
-surv6m
-prg2m
-prg6m
-dnr
-dnrday
-```
+Además, se excluyen `adlp` y `urine` por superar el 50 % de valores faltantes en entrenamiento.
 
 La exclusión busca evitar que el desempeño de los modelos sea artificialmente optimista y mantener la comparación centrada en las variables demográficas, clínicas y fisiológicas originales.
 
@@ -150,8 +143,8 @@ La exclusión busca evitar que el desempeño de los modelos sea artificialmente 
 Para reproducir el análisis es suficiente con:
 
 1. obtener el archivo `support2.csv`;
-2. colocarlo en `data/raw/`;
+2. colocarlo en `dataset/raw/`;
 3. instalar las dependencias del proyecto;
-4. ejecutar los notebooks en el orden indicado en el README principal.
+4. ejecutar los notebooks y scripts en el orden indicado en el README principal.
 
 No deben utilizarse rutas absolutas ni archivos locales que no estén documentados en el repositorio.

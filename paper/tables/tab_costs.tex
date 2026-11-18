@@ -1,0 +1,18 @@
+\begin{table*}[!tp]
+\centering
+\footnotesize
+\caption{Umbral con costos explícitos ($C_{FP}=1$, $C_{FN}=R$) para el modelo final. $\tau^{*}=1/(1+R)$ (regla de Bayes); $\hat\tau$ minimiza el costo en predicciones OOF de entrenamiento. Métricas y costo medio por paciente en prueba (con $\hat\tau$). Costo trivial: mejor entre no alertar a nadie o alertar a todos.}
+\label{tab:costs}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{ccccccccc}
+\toprule
+$R$ & $\tau^{*}$ & $\hat\tau$ & Recall & Prec. & Espec. & Costo $\tau^{*}$ & Costo $\hat\tau$ & Costo trivial \\
+\midrule
+1 & 0.500 & 0.55 & 0.381 & 0.729 & 0.950 & 0.196 & 0.197 & 0.259 \\
+2 & 0.333 & 0.30 & 0.701 & 0.547 & 0.797 & 0.315 & 0.305 & 0.518 \\
+3 & 0.250 & 0.25 & 0.752 & 0.502 & 0.739 & 0.386 & 0.386 & 0.741 \\
+5 & 0.167 & 0.16 & 0.886 & 0.431 & 0.591 & 0.459 & 0.451 & 0.741 \\
+10 & 0.091 & 0.08 & 0.975 & 0.352 & 0.373 & 0.539 & 0.530 & 0.741 \\
+\bottomrule
+\end{tabular}
+\end{table*}

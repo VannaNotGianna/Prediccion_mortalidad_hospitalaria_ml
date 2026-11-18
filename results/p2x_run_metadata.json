@@ -1,0 +1,26 @@
+{
+  "imputation_selected": {
+    "logreg": "median",
+    "tree": "median",
+    "rf": "median",
+    "gboost": "median"
+  },
+  "imputation_rule": "AUC gain > 0.005 and > 2 SE (paired CV)",
+  "calibration_selected_by_oof_brier": {
+    "gboost": "sigmoid",
+    "logreg": "sigmoid",
+    "rf": "isotonic"
+  },
+  "final_model": "gboost",
+  "final_imputation": "median",
+  "final_test_roc_auc": 0.8341348268020253,
+  "max_f1_threshold": 0.29338197606658095,
+  "cost_ratios": [
+    1,
+    2,
+    3,
+    5,
+    10
+  ],
+  "group_cost_ratio": 3
+}

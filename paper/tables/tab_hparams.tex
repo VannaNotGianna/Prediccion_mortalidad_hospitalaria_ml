@@ -1,0 +1,17 @@
+\begin{table*}[!tp]
+\centering
+\footnotesize
+\caption{Hiperparámetros explorados con \texttt{RandomizedSearchCV} y valores seleccionados por ROC-AUC en validación cruzada.}
+\label{tab:hparams}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lp{5.2cm}p{6.6cm}c}
+\toprule
+Modelo & Espacio de búsqueda & Seleccionado (CV) & Ind. faltantes \\
+\midrule
+Reg. logística & $C\in[10^{-3},10^{2}]$, L1/L2, \texttt{class\_weight} & L1, $C$=1.15, balanced & sí \\
+Árbol de decisión & criterio, profundidad, hoja mín., $\alpha$ de poda & gini, prof.=8, hoja=77, $\alpha$=1.4e-05 & no \\
+Random Forest & \texttt{max\_features}, profundidad, hoja mín., pesos & feat.=0.3, prof.=ninguno, hoja=20, balanced\_subsample & sí \\
+Gradient Boosting & $\eta$, iteraciones, hojas, hoja mín., L2 & $\eta$=0.024, iter.=233, hojas=35, L2=1.25 & sí \\
+\bottomrule
+\end{tabular}
+\end{table*}

@@ -4,6 +4,11 @@ __pycache__/
 .venv/
 venv/
 
+# Artefactos regenerables de P2 (modelos serializados, corridas rápidas)
+results/models/
+results/quick/
+.pytest_cache/
+
 # Jupyter
 .ipynb_checkpoints/
 

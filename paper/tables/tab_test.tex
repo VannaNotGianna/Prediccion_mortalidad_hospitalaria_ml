@@ -1,0 +1,18 @@
+\begin{table*}[!tp]
+\centering
+\scriptsize
+\caption{Resultados en el conjunto de prueba ($n=1821$, 472 fallecidos). $\tau$ se eligió maximizando F1 en predicciones \textit{out-of-fold} de entrenamiento (0.5 para el Dummy). IC por bootstrap (1000 réplicas).}
+\label{tab:test}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcccccccccc}
+\toprule
+Modelo & $\tau$ & Acc. & Prec. & Recall & Espec. & F1 & ROC-AUC [IC 95\%] & AP [IC 95\%] & Brier & TP/FP/FN/TN \\
+\midrule
+Dummy (prior) & 0.50 & 0.741 & 0.000 & 0.000 & 1.000 & 0.000 & 0.500 & 0.259 & 0.192 & 0/0/472/1349 \\
+Reg. logística & 0.53 & 0.767 & 0.539 & 0.695 & 0.792 & 0.607 & 0.820 [0.800, 0.842] & 0.629 [0.583, 0.675] & 0.171 & 328/280/144/1069 \\
+Árbol de decisión & 0.31 & 0.753 & 0.518 & 0.661 & 0.785 & 0.581 & 0.799 [0.778, 0.821] & 0.575 [0.527, 0.626] & 0.149 & 312/290/160/1059 \\
+Random Forest & 0.54 & 0.778 & 0.559 & 0.674 & 0.814 & 0.611 & 0.832 [0.813, 0.853] & 0.641 [0.595, 0.688] & 0.160 & 318/251/154/1098 \\
+\textbf{Gradient Boosting} & 0.29 & 0.765 & 0.535 & 0.703 & 0.787 & 0.608 & 0.834 [0.814, 0.854] & 0.655 [0.611, 0.700] & 0.136 & 332/288/140/1061 \\
+\bottomrule
+\end{tabular}
+\end{table*}

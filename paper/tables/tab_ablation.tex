@@ -1,0 +1,16 @@
+\begin{table}[!t]
+\centering
+\scriptsize
+\caption{ROC-AUC por conjunto de variables (RL: regresión logística; GB: Gradient Boosting). $\Delta$AUC RL: diferencia pareada en prueba frente a la RL solo demográfica [IC 95\,\%].}
+\label{tab:ablation}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccccc}
+\toprule
+Variables & RL CV & RL test & GB CV & GB test & $\Delta$AUC RL \\
+\midrule
+Demog. & 0.570 & 0.567 & 0.575 & 0.569 & --- \\
+Demog.+fisiol. & 0.751 & 0.758 & 0.785 & 0.796 & +0.192 [0.16, 0.23] \\
+Todas & 0.804 & 0.820 & 0.823 & 0.834 & +0.254 [0.22, 0.29] \\
+\bottomrule
+\end{tabular}
+\end{table}

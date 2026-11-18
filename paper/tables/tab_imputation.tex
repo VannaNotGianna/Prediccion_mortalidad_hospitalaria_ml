@@ -1,0 +1,17 @@
+\begin{table}[!t]
+\centering
+\footnotesize
+\caption{ROC-AUC medio en CV (5 folds, entrenamiento) según la imputación numérica, con los hiperparámetros ya seleccionados. En negrita, el máximo por modelo.}
+\label{tab:imputation}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcccc}
+\toprule
+Modelo & Mediana & Normales & KNN & Iterativa \\
+\midrule
+Reg. logística & 0.804 & 0.804 & \textbf{0.805} & 0.804 \\
+Árbol de decisión & 0.781 & 0.779 & \textbf{0.781} & 0.775 \\
+Random Forest & 0.818 & \textbf{0.820} & 0.818 & 0.818 \\
+Gradient Boosting & 0.823 & \textbf{0.826} & 0.824 & 0.822 \\
+\bottomrule
+\end{tabular}
+\end{table}
