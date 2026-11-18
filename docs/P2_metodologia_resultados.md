@@ -32,12 +32,13 @@ documento a partir de esas tablas.
 | **Nuevo en P2:** indicadores de faltante (`add_indicator`) como hiperparámetro | En SUPPORT un laboratorio ausente suele indicar que no se solicitó; la ausencia puede ser informativa. Se decide por CV, no a priori. |
 | `StandardScaler` solo en regresión logística | La penalización λ‖w‖ depende de la escala; los árboles son invariantes a transformaciones monótonas. |
 | Todo el preprocesador dentro de `Pipeline` | Se reajusta en cada fold: el fold de validación nunca participa en imputación/escalado. Verificado en `tests/` y en el notebook 03 (medianas del imputador = medianas de train). |
+| La imputación exploratoria del EDA (P1) no se reutiliza | `01_eda.ipynb` imputó (mediana/moda) una copia `df_eda` solo con fines descriptivos y no la guardó. P2 parte del CSV original (`preprocessing.load_data()`). |
 
 **Grupos de variables** (`preprocessing.FEATURE_GROUPS`), usados para la pregunta de investigación:
 
 - *Demográficas (5)*: `age`, `sex`, `race`, `income`, `edu`.
 - *Clínicas (8)*: `dzgroup`, `dzclass`, `num.co`, `diabetes`, `dementia`, `ca`, `adls`, `hday`.
-- *Fisiológicas, día 3 (14)*: `scoma`, `meanbp`, `wblc`, `hrt`, `resp`, `temp`, `pafi`, `alb`, `bili`, `crea`, `sod`, `ph`, `glucose`, `bun`.
+- *Fisiológicas, día 3 del estudio (14)*: `scoma`, `meanbp`, `wblc`, `hrt`, `resp`, `temp`, `pafi`, `alb`, `bili`, `crea`, `sod`, `ph`, `glucose`, `bun`.
 
 ## 3. Modelos
 
@@ -56,7 +57,7 @@ documento a partir de esas tablas.
 2. **Métrica de selección: ROC-AUC.** No depende del umbral y no se infla con la clase mayoritaria (accuracy del Dummy = 0.741). Se registran también AP, F1, recall, precision, accuracy y log-loss.
 3. **Umbral τ** (ŷ = 1[p ≥ τ]): τ = 0.5 no es un umbral clínico validado. Se elige τ que maximiza F1 sobre predicciones *out-of-fold* de entrenamiento (`cross_val_predict` con los mismos folds). El test no interviene. Se reportan τ = 0.5 y τ de CV.
 4. **Modelo final**: mayor ROC-AUC medio en CV con todas las variables → **Gradient Boosting**.
-5. **Test**: evaluación única al final; IC 95 % por bootstrap percentil (1000 réplicas) y diferencias **pareadas** (mismas réplicas para ambos modelos).
+5. **Test**: reservado para la evaluación y el análisis finales (métricas, IC 95 % por bootstrap percentil con 1000 réplicas y diferencias **pareadas**, importancia por permutación, subgrupos y comparación de variantes). No interviene en ninguna selección: hiperparámetros, umbrales, imputación y calibración se deciden con CV o predicciones OOF de entrenamiento.
 6. **Ablación**: la búsqueda completa se repite para regresión logística y GB con los conjuntos `demographic` y `demographic+physiological`.
 
 ### 4.1 Hiperparámetros seleccionados (CV)
@@ -102,7 +103,7 @@ Con τ = 0.5, GB obtiene accuracy 0.804 pero recall 0.443: con el umbral por def
 
 | Comparación | ΔAUC | IC 95 % | Lectura |
 |---|---|---|---|
-| Random Forest − GB | −0.002 | [−0.008, 0.004] | No distinguibles |
+| Random Forest − GB | −0.002 | [−0.008, 0.004] | Sin diferencia significativa (no implica equivalencia formal) |
 | Reg. logística − GB | −0.015 | [−0.024, −0.005] | GB ligeramente superior |
 | Árbol − GB | −0.035 | [−0.049, −0.020] | GB superior |
 
@@ -146,7 +147,7 @@ Suma por grupo: fisiológicas 0.113, clínicas 0.062, demográficas 0.017. `sex`
 
 Resultado: TP = 332, FN = 140, FP = 288, TN = 1061.
 
-**Perfil de los errores** (`p2_error_profile.csv`, medianas): los falsos negativos son fallecidos que el día 3 parecían estables: `scoma` = 0 (vs. 37 en TP), `hday` = 1 (vs. 5), frecuencia cardíaca 90 (vs. 110), temperatura 36.7 (vs. 37.5). El modelo no puede anticipar deterioros posteriores a las mediciones disponibles. Los falsos positivos comparten el perfil de gravedad de los TP (FC 109, `hday` 4).
+**Perfil de los errores** (`p2_error_profile.csv`, medianas): los falsos negativos son fallecidos que el día 3 del estudio parecían estables: `scoma` = 0 (vs. 37 en TP), `hday` = 1 (vs. 5), frecuencia cardíaca 90 (vs. 110), temperatura 36.7 (vs. 37.5). El modelo no puede anticipar deterioros posteriores a las mediciones disponibles. Los falsos positivos comparten el perfil de gravedad de los TP (FC 109, `hday` 4).
 
 **Por diagnóstico** (`p2_subgroup_performance.csv`): buena parte de la discriminación global ocurre *entre* grupos diagnósticos. Dentro de cada grupo el AUC es menor (0.69–0.81, salvo cáncer de colon, con n = 99 y 6 muertes), y el umbral único produce errores asimétricos:
 
@@ -167,7 +168,7 @@ En los grupos de baja mortalidad casi no se detectan muertes; en los de alta mor
 ## 8. Discusión y limitaciones
 
 - **Por qué ganan los ensambles de árboles.** Capturan no linealidades (riesgo en ambos extremos de signos vitales) e interacciones diagnóstico × fisiología sin ingeniería manual. Boosting reduce sesgo y bagging varianza; el árbol individual queda último por su alta varianza. La ventaja de GB sobre la logística es pequeña (0.015 AUC), y la logística sigue siendo competitiva y más interpretable.
-- **Temporalidad.** Las mediciones son del día 3 *del estudio*, no de la hospitalización (`hday` > 1 en 3157 pacientes). 138 fallecidos tienen `slos = 3` y `d.time = 3`, es decir, mediciones muy cercanas al desenlace (`temporal_audit.csv`). Además `hday` es la tercera variable más importante: refleja cuánto tiempo llevaba el paciente hospitalizado al ser incluido, un artefacto del diseño del estudio que puede no estar disponible del mismo modo en otro contexto. Es una clasificación **retrospectiva**, no una validación prospectiva.
+- **Temporalidad.** Las mediciones son del día 3 *del estudio*, no de la hospitalización (`hday` > 1 en 3157 pacientes). 138 fallecidos tienen `slos = 3` y `d.time = 3`, y para ellos no puede confirmarse que las mediciones precedan al desenlace (`temporal_audit.csv`). Además `hday` es la tercera variable más importante: refleja cuánto tiempo llevaba el paciente hospitalizado al ser incluido, un artefacto del diseño del estudio que puede no estar disponible del mismo modo en otro contexto. Es una clasificación **retrospectiva**, no una validación prospectiva.
 - **Umbral.** El τ que maximiza F1 trata igual FN y FP. El análisis con costos explícitos (§10C) muestra cómo cambia el umbral según R, pero los valores de R son supuestos de sensibilidad, no costos clínicos medidos. Los umbrales por grupo no mejoran el desempeño global (§10D).
 - **Optimismo residual.** τ se elige con los mismos folds que los hiperparámetros (dentro de train), lo que puede ser levemente optimista. El test, independiente, lo acota.
 - **Validez externa.** SUPPORT (1989–1994, 5 hospitales de EE. UU., pacientes gravemente enfermos) no representa la práctica actual ni otras poblaciones; no hay validación externa.
@@ -177,8 +178,8 @@ En los grupos de baja mortalidad casi no se detectan muertes; en los de alta mor
 ## 9. Conclusiones
 
 1. Todos los modelos superan ampliamente al baseline (AUC 0.799–0.834 vs. 0.50). El modelo final, Gradient Boosting, obtiene AUC 0.834 [0.814, 0.854], AP 0.655 y, con τ = 0.29, recall 0.70 y precisión 0.54, con buena calibración.
-2. Las variables fisiológicas del día 3 explican la mayor parte del poder predictivo: +0.19 a +0.23 AUC sobre un modelo solo demográfico (≈ 0.57). `scoma` es el predictor individual más fuerte.
-3. RF y GB son estadísticamente indistinguibles en el test; la regresión logística queda ligeramente por debajo, pero es interpretable.
+2. Las variables fisiológicas del día 3 del estudio explican la mayor parte del poder predictivo: +0.19 a +0.23 AUC sobre un modelo solo demográfico (≈ 0.57). `scoma` es el predictor individual más fuerte.
+3. No se detectó una diferencia significativa entre RF y GB en el test (el IC de la diferencia incluye el cero; no implica equivalencia formal); la regresión logística queda ligeramente por debajo, pero es interpretable.
 4. La imputación tiene un efecto mínimo; la recalibración es necesaria cuando se usan pesos de clase; y con probabilidades calibradas el umbral por costo sigue τ* = 1/(1+R), mientras que los umbrales por grupo diagnóstico no mejoran el desempeño global (§10).
 5. **Trabajo futuro:** definir los costos de error con personal clínico; mejorar la discriminación dentro de los grupos de baja mortalidad; incorporar información temporal; validación externa o por hospital (si se dispusiera del identificador).
 
@@ -203,9 +204,9 @@ La mayor mejora (valores normales en GB, +0.0023, EE 0.0009) no supera 0.005, as
 |---|---|---|---|---|
 | Reg. logística | Platt | 0.171 → 0.141 | 0.166 → 0.024 | 0.820 → 0.820 |
 | Random Forest | Isotónica | 0.160 → 0.139 | 0.140 → 0.026 | 0.832 → 0.830 |
-| Gradient Boosting | Platt | 0.136 → 0.135 | 0.020 → 0.024 | 0.834 → 0.838 |
+| Gradient Boosting | Platt (no adoptado) | 0.136 → 0.135 | 0.020 → 0.024 | 0.834 → 0.838 |
 
-La recalibración corrige la sobrestimación de riesgo que introduce `class_weight="balanced"` sin afectar la discriminación. GB ya estaba calibrado y el cambio es marginal, por lo que el análisis de umbrales usa el modelo final sin recalibrar.
+La recalibración corrige la sobrestimación de riesgo que introduce `class_weight="balanced"` sin afectar la discriminación. En GB la mejora fue despreciable (Brier OOF 0.1395 → 0.1388) y su ECE OOF empeoró (0.012 → 0.014), por lo que **el modelo seleccionado y todos los análisis de umbral usan GB sin recalibrar**. Las variaciones de ROC-AUC de esta tabla no vienen de la función de calibración (monótona, no cambia el orden), sino de que `CalibratedClassifierCV` con `cv=5` promedia cinco modelos reentrenados en los folds.
 
 **C. Umbral con costos explícitos.** Con C_FP = 1 y C_FN = R, la regla de Bayes da τ* = 1/(1+R). No existe un R validado para esta población, así que se hace un análisis de sensibilidad. τ̂ minimiza el costo en predicciones OOF de train; métricas en prueba:
 
@@ -217,7 +218,7 @@ La recalibración corrige la sobrestimación de riesgo que introduce `class_weig
 | 5 | 0.167 | 0.16 | 0.886 | 0.431 | 0.591 | 0.451 | 0.741 |
 | 10 | 0.091 | 0.08 | 0.975 | 0.352 | 0.373 | 0.530 | 0.741 |
 
-τ* ≈ τ̂ porque GB está calibrado. El modelo tiene menor costo que no alertar a nadie o alertar a todos en todos los valores de R.
+El análisis usa las probabilidades de GB sin recalibración adicional, cuya calibración se verificó (ECE 0.012 OOF, 0.020 en prueba); por eso τ* y τ̂ quedan próximos: coinciden para R = 3 y difieren en a lo sumo 0.05 en el resto. El modelo tiene menor costo que no alertar a nadie o alertar a todos en todos los valores de R.
 
 **D. Umbral por grupo diagnóstico** (`dzgroup`, elegido en OOF de train) frente al umbral global, en prueba:
 

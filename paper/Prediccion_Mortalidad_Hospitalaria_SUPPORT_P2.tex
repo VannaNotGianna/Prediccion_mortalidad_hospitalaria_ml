@@ -49,7 +49,7 @@ Lima, Perú
 \maketitle
 
 \begin{abstract}
-Se estudia la predicción de la mortalidad hospitalaria (\texttt{hospdead}) en 9105 pacientes gravemente enfermos del estudio SUPPORT a partir de variables demográficas, clínicas y fisiológicas registradas en el tercer día del estudio. Tras excluir variables con fuga de información (desenlaces, costos, puntuaciones pronósticas y órdenes de no reanimación), se compararon un baseline de clase mayoritaria, regresión logística regularizada, un árbol de decisión, Random Forest y Gradient Boosting. Los hiperparámetros se ajustaron con validación cruzada estratificada de 5 folds sobre el conjunto de entrenamiento (80\,\%), y la partición de prueba (20\,\%) se usó una sola vez. Gradient Boosting, seleccionado por ROC-AUC en validación cruzada, alcanzó en prueba un ROC-AUC de 0.834 (IC 95\,\%: 0.814--0.854) y un AP de 0.655, con buena calibración; Random Forest fue estadísticamente equivalente. Un modelo con solo variables demográficas obtuvo un ROC-AUC de 0.567, y la incorporación de las variables fisiológicas lo elevó en 0.19, lo que confirma que estas concentran la capacidad predictiva. Se analizaron además estrategias de imputación, la recalibración de los modelos con pesos de clase, umbrales de decisión con costos clínicos explícitos y por grupo diagnóstico, la importancia de variables y los errores por subgrupo. Los resultados corresponden a una clasificación retrospectiva y no constituyen una validación clínica.
+Se estudia la predicción de la mortalidad hospitalaria (\texttt{hospdead}) en 9105 pacientes gravemente enfermos del estudio SUPPORT a partir de variables demográficas, clínicas y fisiológicas registradas en el tercer día del estudio. Tras excluir variables con fuga de información (desenlaces, costos, puntuaciones pronósticas y órdenes de no reanimación), se compararon un baseline de clase mayoritaria, regresión logística regularizada, un árbol de decisión, Random Forest y Gradient Boosting. Los hiperparámetros se ajustaron con validación cruzada estratificada de 5 folds sobre el conjunto de entrenamiento (80\,\%), y la partición de prueba (20\,\%) se reservó para la evaluación y el análisis finales. Gradient Boosting, seleccionado por ROC-AUC en validación cruzada, alcanzó en prueba un ROC-AUC de 0.834 (IC 95\,\%: 0.814--0.854) y un AP de 0.655, con buena calibración; la diferencia con Random Forest no fue estadísticamente significativa (diferencia de ROC-AUC $-0.002$; IC 95\,\%: $-0.008$ a $0.004$). Un modelo con solo variables demográficas obtuvo un ROC-AUC de 0.567, y la incorporación de las variables fisiológicas lo elevó en 0.19, lo que confirma que estas concentran la capacidad predictiva. Se analizaron además estrategias de imputación, la recalibración de los modelos con pesos de clase, umbrales de decisión con costos clínicos explícitos y por grupo diagnóstico, la importancia de variables y los errores por subgrupo. Los resultados corresponden a una clasificación retrospectiva y no constituyen una validación clínica.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -87,7 +87,7 @@ Se calculó el porcentaje de datos faltantes respecto del total de 9105 paciente
 \end{figure}
 \FloatBarrier
 
-Las variables con mayor proporción de ausencia son \texttt{adlp}, \texttt{urine}, \texttt{glucose}, \texttt{bun}, \texttt{totmcst}, \texttt{alb} e \texttt{income}. En el EDA no se imputaron datos para no alterar las distribuciones originales; la imputación definitiva se realiza dentro del pipeline de modelado, ajustada solo con los datos de entrenamiento (Sección~\ref{sec:prepro}).
+Las variables con mayor proporción de ausencia son \texttt{adlp}, \texttt{urine}, \texttt{glucose}, \texttt{bun}, \texttt{totmcst}, \texttt{alb} e \texttt{income}. Durante el EDA se aplicó una imputación exploratoria (mediana para variables numéricas y moda para \texttt{income} y \texttt{sfdm2}) sobre una copia del conjunto de datos, solo con fines descriptivos. Esa copia no se guardó ni se reutilizó: los experimentos de P2 parten del archivo original y la imputación se aprende dentro del pipeline, solo con los datos de entrenamiento (Sección~\ref{sec:prepro}).
 
 \subsection{Prevención de data leakage}
 Antes de analizar las relaciones entre los predictores y la mortalidad hospitalaria se identificaron variables que podrían introducir fuga de información o incorporar estimaciones pronósticas externas al modelo que se desea desarrollar.
@@ -170,7 +170,7 @@ Se calculó tanto el número como el porcentaje de observaciones identificadas c
 
 \FloatBarrier
 \subsection{Auditoría temporal}
-Las evaluaciones clínicas corresponden al tercer día \emph{del estudio}, que no necesariamente coincide con el tercer día de hospitalización: 3157 pacientes ingresaron al estudio después de su primer día en el hospital (\texttt{hday} $>1$). Además, 138 fallecidos tienen \texttt{slos} $=3$ y \texttt{d.time} $=3$, es decir, sus mediciones pueden estar muy próximas al desenlace. Por ello, el experimento se interpreta como una clasificación retrospectiva y no como una validación clínica prospectiva.
+Las evaluaciones clínicas corresponden al tercer día \emph{del estudio}, que no necesariamente coincide con el tercer día de hospitalización: 3157 pacientes ingresaron al estudio después de su primer día en el hospital (\texttt{hday} $>1$). Además, 138 fallecidos tienen \texttt{slos} $=3$ y \texttt{d.time} $=3$, y para ellos no puede confirmarse que las mediciones precedan al desenlace. Por ello, el experimento se interpreta como una clasificación retrospectiva y no como una validación clínica prospectiva.
 
 \section{Preprocesamiento e ingeniería de características}
 \label{sec:prepro}
@@ -182,7 +182,7 @@ Además de las 17 variables excluidas por fuga, se descartaron \texttt{adlp} y \
 \begin{itemize}
 \item \textit{Demográficas (5):} \texttt{age}, \texttt{sex}, \texttt{race}, \texttt{income}, \texttt{edu}.
 \item \textit{Clínicas (8):} \texttt{dzgroup}, \texttt{dzclass}, \texttt{num.co}, \texttt{diabetes}, \texttt{dementia}, \texttt{ca}, \texttt{adls}, \texttt{hday}.
-\item \textit{Fisiológicas, día 3 (14):} \texttt{scoma}, \texttt{meanbp}, \texttt{wblc}, \texttt{hrt}, \texttt{resp}, \texttt{temp}, \texttt{pafi}, \texttt{alb}, \texttt{bili}, \texttt{crea}, \texttt{sod}, \texttt{ph}, \texttt{glucose}, \texttt{bun}.
+\item \textit{Fisiológicas, día 3 del estudio (14):} \texttt{scoma}, \texttt{meanbp}, \texttt{wblc}, \texttt{hrt}, \texttt{resp}, \texttt{temp}, \texttt{pafi}, \texttt{alb}, \texttt{bili}, \texttt{crea}, \texttt{sod}, \texttt{ph}, \texttt{glucose}, \texttt{bun}.
 \end{itemize}
 
 \subsection{Transformaciones}
@@ -231,7 +231,7 @@ La selección de hiperparámetros se realizó con \texttt{RandomizedSearchCV} (2
 \begin{equation}
 CV(M,\theta)=\frac1K\sum_{k=1}^{K}\mathrm{Score}_k(M,\theta).
 \end{equation}
-El modelo final se eligió por el mayor ROC-AUC medio en validación cruzada. El conjunto de prueba se utilizó una sola vez, al final, para reportar métricas; no intervino en la selección de hiperparámetros, umbrales ni métodos de calibración.
+El modelo final se eligió por el mayor ROC-AUC medio en validación cruzada. El conjunto de prueba se reservó para la evaluación y el análisis finales (métricas, intervalos bootstrap, importancia por permutación, subgrupos y comparación de variantes); no intervino en la selección de hiperparámetros, umbrales, estrategia de imputación ni método de calibración, que se decidieron con validación cruzada o con predicciones \textit{out-of-fold} de entrenamiento.
 
 \subsection{Métricas}
 Con TP, FP, TN y FN definidos para la clase positiva (fallecimiento), se reportan accuracy $=(TP+TN)/N$, precision $=TP/(TP+FP)$, recall $=TP/(TP+FN)$, especificidad $=TN/(TN+FP)$ y $F_1=2PR/(P+R)$. Como métricas independientes del umbral se usan el ROC-AUC (métrica de selección, insensible a la prevalencia) y la Average Precision (AP, área bajo la curva precision-recall, más informativa con clases desbalanceadas; su valor de referencia es la prevalencia, 0.259). La calidad de las probabilidades se mide con el Brier score $\frac1n\sum_i(p_i-y_i)^2$, la log-loss y el error de calibración esperado $\mathrm{ECE}=\sum_b\frac{n_b}{N}\lvert\bar p_b-\bar y_b\rvert$ con 10 intervalos. Los intervalos de confianza de 95\,\% se obtienen con bootstrap percentil (1000 réplicas) sobre el conjunto de prueba, y las comparaciones entre modelos con diferencias pareadas sobre las mismas réplicas \cite{efron1993}.
@@ -274,7 +274,7 @@ La Tabla~\ref{tab:test} y la Fig.~\ref{fig:rocpr} presentan los resultados en pr
 \label{fig:confusion}
 \end{figure*}
 
-Las diferencias pareadas de ROC-AUC frente a Gradient Boosting fueron $-0.002$ (IC 95\,\%: $-0.008$ a $0.004$) para Random Forest, $-0.015$ ($-0.024$ a $-0.005$) para la regresión logística y $-0.035$ ($-0.049$ a $-0.020$) para el árbol. Por lo tanto, los dos ensambles son estadísticamente indistinguibles, mientras que ambos superan a la regresión logística por un margen pequeño y al árbol individual por un margen mayor. Con el umbral por defecto $\tau=0.5$, Gradient Boosting alcanza una accuracy de 0.804, pero un recall de solo 0.443: deja sin detectar más de la mitad de los fallecimientos, lo que justifica elegir el umbral explícitamente.
+Las diferencias pareadas de ROC-AUC frente a Gradient Boosting fueron $-0.002$ (IC 95\,\%: $-0.008$ a $0.004$) para Random Forest, $-0.015$ ($-0.024$ a $-0.005$) para la regresión logística y $-0.035$ ($-0.049$ a $-0.020$) para el árbol. Por lo tanto, no se detectó una diferencia significativa entre los dos ensambles (el IC de la diferencia incluye el cero, lo que no demuestra equivalencia formal), mientras que ambos superan a la regresión logística por un margen pequeño y al árbol individual por un margen mayor. Con el umbral por defecto $\tau=0.5$, Gradient Boosting alcanza una accuracy de 0.804, pero un recall de solo 0.443: deja sin detectar más de la mitad de los fallecimientos, lo que justifica elegir el umbral explícitamente.
 
 \subsection{Pregunta de investigación: variables fisiológicas frente a demográficas}
 Se repitió la búsqueda completa de hiperparámetros con tres conjuntos de variables (Tabla~\ref{tab:ablation}). Con solo variables demográficas, ambos modelos apenas superan el azar (ROC-AUC $\approx$ 0.57 en prueba). Añadir las 14 variables fisiológicas eleva el AUC de la regresión logística en $+0.192$ (IC 95\,\%: 0.161 a 0.227) y el de Gradient Boosting en $+0.227$. Las variables clínicas (diagnóstico, comorbilidades y estado funcional) aportan un incremento adicional menor, de $+0.04$ a $+0.06$.
@@ -300,7 +300,7 @@ La regresión logística y Random Forest seleccionaron \texttt{class\_weight="ba
 
 \input{tables/tab_calibration.tex}
 
-La recalibración redujo el ECE en prueba de la regresión logística de 0.166 a 0.024 (Platt) y el de Random Forest de 0.140 a 0.026 (isotónica), y el Brier score de 0.171 a 0.141 y de 0.160 a 0.139, respectivamente, sin alterar su capacidad de discriminación (ROC-AUC prácticamente igual). Gradient Boosting, entrenado sin pesos de clase, ya estaba bien calibrado (ECE 0.020), y la recalibración solo produjo una mejora marginal (Brier 0.136 a 0.135).
+La recalibración redujo el ECE en prueba de la regresión logística de 0.166 a 0.024 (Platt) y el de Random Forest de 0.140 a 0.026 (isotónica), y el Brier score de 0.171 a 0.141 y de 0.160 a 0.139, respectivamente, sin alterar su capacidad de discriminación (ROC-AUC prácticamente igual). Gradient Boosting, entrenado sin pesos de clase, ya estaba bien calibrado (ECE 0.020 en prueba). En su caso la mejora fue despreciable (Brier OOF 0.1395 a 0.1388) y su ECE OOF empeoró (0.012 a 0.014); por ello, el modelo seleccionado y todos los análisis de umbral usan Gradient Boosting sin recalibrar. Las variaciones de ROC-AUC en la Tabla~\ref{tab:calibration} no provienen de la función de calibración, que es monótona, sino de que \texttt{CalibratedClassifierCV} promedia cinco modelos reentrenados en los folds.
 
 \begin{figure*}[!tp]
 \centering
@@ -315,7 +315,7 @@ Asignando un costo $C_{FP}=1$ a una falsa alerta y $C_{FN}=R$ a un fallecimiento
 
 \input{tables/tab_costs.tex}
 
-Como Gradient Boosting está bien calibrado, $\tau^*$ y $\hat\tau$ prácticamente coinciden (por ejemplo, ambos valen 0.25 para $R=3$). El modelo tiene un costo menor que las estrategias triviales de no alertar a nadie o alertar a todos en todos los valores de $R$; para $R=3$, el costo medio por paciente es 0.386 frente a 0.741 de la mejor estrategia trivial. A medida que aumenta $R$, el umbral baja y el recall crece a costa de la especificidad: con $R=10$ ($\hat\tau=0.08$) se detecta el 97.5\,\% de los fallecimientos, pero la especificidad cae a 0.373.
+Este análisis usa las probabilidades de Gradient Boosting sin recalibración adicional, cuya calibración se verificó (ECE 0.012 en predicciones OOF de entrenamiento y 0.020 en prueba). En consecuencia, $\tau^*$ y $\hat\tau$ quedan próximos: coinciden para $R=3$ (0.25) y difieren en a lo sumo 0.05 en el resto. El modelo tiene un costo menor que las estrategias triviales de no alertar a nadie o alertar a todos en todos los valores de $R$; para $R=3$, el costo medio por paciente es 0.386 frente a 0.741 de la mejor estrategia trivial. A medida que aumenta $R$, el umbral baja y el recall crece a costa de la especificidad: con $R=10$ ($\hat\tau=0.08$) se detecta el 97.5\,\% de los fallecimientos, pero la especificidad cae a 0.373.
 
 \begin{figure}[!t]
 \centering
@@ -329,14 +329,14 @@ Por último, se comparó el umbral global con umbrales específicos por grupo di
 \input{tables/tab_groups.tex}
 
 \subsection{Análisis de errores y subgrupos}
-Con $\tau=0.29$, el modelo final produjo 332 verdaderos positivos, 140 falsos negativos, 288 falsos positivos y 1061 verdaderos negativos. Los falsos negativos son fallecidos que el día 3 parecían estables: mediana de \texttt{scoma} 0 frente a 37 en los verdaderos positivos, ingreso al estudio en el primer día de hospitalización (\texttt{hday} 1 frente a 5), frecuencia cardíaca de 90 frente a 110 y temperatura de 36.7 frente a 37.5\,$^{\circ}$C. Es decir, el modelo no puede anticipar deterioros posteriores a las mediciones disponibles. Los falsos positivos, en cambio, comparten el perfil de gravedad de los verdaderos positivos.
+Con $\tau=0.29$, el modelo final produjo 332 verdaderos positivos, 140 falsos negativos, 288 falsos positivos y 1061 verdaderos negativos. Los falsos negativos son fallecidos que el día 3 del estudio parecían estables: mediana de \texttt{scoma} 0 frente a 37 en los verdaderos positivos, ingreso al estudio en el primer día de hospitalización (\texttt{hday} 1 frente a 5), frecuencia cardíaca de 90 frente a 110 y temperatura de 36.7 frente a 37.5\,$^{\circ}$C. Es decir, el modelo no puede anticipar deterioros posteriores a las mediciones disponibles. Los falsos positivos, en cambio, comparten el perfil de gravedad de los verdaderos positivos.
 
 Por sexo, el ROC-AUC fue de 0.849 en mujeres y 0.825 en hombres (FNR 0.26 y 0.32), y por raza de 0.835 en pacientes blancos y 0.802 en pacientes negros (FNR 0.30 y 0.34). El desempeño fue estable entre grupos de edad (ROC-AUC 0.825--0.844). Los grupos de raza asiática ($n=17$) y otras ($n=14$) son demasiado pequeños para extraer conclusiones, y estas diferencias son descriptivas: no se evaluó su significancia estadística.
 
 \section{Discusión y limitaciones}
 \textit{?`Por qué funcionan mejor los ensambles?} Los ensambles de árboles capturan no linealidades (riesgo en ambos extremos de los signos vitales) e interacciones entre diagnóstico y fisiología sin ingeniería manual de variables; el bagging reduce la varianza y el boosting el sesgo, mientras que el árbol individual queda último por su alta varianza. Sin embargo, la ventaja sobre la regresión logística es pequeña (0.015 de AUC), y esta sigue siendo competitiva y más interpretable, sobre todo después de recalibrarla.
 
-\textit{Temporalidad y validez.} Las mediciones corresponden al día 3 del estudio, y \texttt{hday}, la tercera variable más importante, refleja cuánto tiempo llevaba el paciente hospitalizado al ser incluido; es un artefacto del diseño del estudio que puede no estar disponible de la misma forma en otro contexto. Sumado a los 138 fallecidos con mediciones cercanas al desenlace, los resultados deben entenderse como una clasificación retrospectiva. SUPPORT incluye pacientes de cinco hospitales de Estados Unidos reclutados entre 1989 y 1994 \cite{knaus1995}, por lo que no representa la práctica clínica actual ni otras poblaciones, y no se dispuso de validación externa.
+\textit{Temporalidad y validez.} Las mediciones corresponden al día 3 del estudio, y \texttt{hday}, la tercera variable más importante, refleja cuánto tiempo llevaba el paciente hospitalizado al ser incluido; es un artefacto del diseño del estudio que puede no estar disponible de la misma forma en otro contexto. Sumado a los 138 fallecidos para los que no puede confirmarse el orden temporal entre medición y desenlace, los resultados deben entenderse como una clasificación retrospectiva. SUPPORT incluye pacientes de cinco hospitales de Estados Unidos reclutados entre 1989 y 1994 \cite{knaus1995}, por lo que no representa la práctica clínica actual ni otras poblaciones, y no se dispuso de validación externa.
 
 \textit{Metodología.} El umbral se eligió con los mismos folds usados para los hiperparámetros, lo que puede introducir un optimismo leve dentro de entrenamiento; la evaluación en un conjunto de prueba independiente lo acota. Las razones de costo $R$ son supuestos de sensibilidad y no costos clínicos medidos. Las comparaciones por subgrupo no incluyen intervalos de confianza.
 
@@ -344,8 +344,8 @@ Por sexo, el ROC-AUC fue de 0.849 en mujeres y 0.825 en hombres (FNR 0.26 y 0.32
 
 \section{Conclusiones}
 \begin{enumerate}
-\item \textit{Pregunta de investigación:} las variables demográficas, por sí solas, apenas discriminan (ROC-AUC $\approx$ 0.57). Las variables fisiológicas del día 3 aportan la mayor parte de la capacidad predictiva ($+0.19$ a $+0.23$ de AUC), lo que confirma la hipótesis. El estado de conciencia (\texttt{scoma}) es el predictor individual más fuerte.
-\item Gradient Boosting fue el modelo seleccionado (ROC-AUC 0.834, AP 0.655, bien calibrado), estadísticamente equivalente a Random Forest y ligeramente superior a la regresión logística.
+\item \textit{Pregunta de investigación:} las variables demográficas, por sí solas, apenas discriminan (ROC-AUC $\approx$ 0.57). Las variables fisiológicas del día 3 del estudio aportan la mayor parte de la capacidad predictiva ($+0.19$ a $+0.23$ de AUC), lo que confirma la hipótesis. El estado de conciencia (\texttt{scoma}) es el predictor individual más fuerte.
+\item Gradient Boosting fue el modelo seleccionado (ROC-AUC 0.834, AP 0.655, bien calibrado), sin diferencia significativa frente a Random Forest y ligeramente superior a la regresión logística.
 \item La estrategia de imputación tiene un efecto mínimo. La recalibración es necesaria cuando se usan pesos de clase. Con probabilidades calibradas, el umbral por costo sigue la regla $\tau^*=1/(1+R)$, y los umbrales por grupo diagnóstico no mejoran el desempeño global.
 \item \textit{Trabajo futuro:} definir los costos de error junto con personal clínico, mejorar la discriminación dentro de los grupos de baja mortalidad (por ejemplo, con modelos o variables específicos por diagnóstico), incorporar información temporal y validar el modelo en una cohorte externa o más reciente.
 \end{enumerate}

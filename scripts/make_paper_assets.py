@@ -211,8 +211,8 @@ def main():
                "Log-loss test", "AUC test"],
         "llccccc",
         "Recalibración con \\texttt{CalibratedClassifierCV} (5 folds dentro de "
-        "entrenamiento). $^{*}$Método elegido por menor Brier \\textit{out-of-fold} "
-        "en entrenamiento.",
+        "entrenamiento). $^{*}$Menor Brier \\textit{out-of-fold} en entrenamiento; "
+        "en Gradient Boosting no se adoptó (ver texto).",
         "tab:calibration", wide=True))
 
     # --- Umbrales por costo ----------------------------------------------------
