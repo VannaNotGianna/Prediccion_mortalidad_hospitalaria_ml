@@ -112,8 +112,8 @@ Prediccion_mortalidad_hospitalaria_ml/
 │   └── P2_metodologia_resultados.md   # Decisiones metodológicas y resultados de P2
 │
 └── paper/
-    ├── support_project_ieee.tex
-    ├── support_project_ieee.pdf   # Versión compilada (P2)
+    ├── Prediccion_Mortalidad_Hospitalaria_SUPPORT_P2.tex
+    ├── Prediccion_Mortalidad_Hospitalaria_SUPPORT_P2.pdf   # Versión compilada (P2)
     ├── IEEEtran.cls
     ├── tables/                    # Generadas por scripts/make_paper_assets.py
     └── figures/                   # image*.png (P1) y p2*.png (copias de results/figures)
@@ -213,7 +213,7 @@ Para compilar el paper se puede usar Overleaf o cualquier distribución LaTeX (p
 
 ```bash
 cd paper
-tectonic support_project_ieee.tex
+tectonic Prediccion_Mortalidad_Hospitalaria_SUPPORT_P2.tex
 ```
 
 `python scripts/run_p2.py --quick` ejecuta una búsqueda reducida para pruebas rápidas y escribe en `results/quick/` (no versionado), sin sobrescribir los resultados oficiales.
@@ -246,7 +246,7 @@ El documento utiliza LaTeX con la clase `IEEEtran` en formato de conferencia.
 - **P1** (EDA): completado.
 - **P2** (modelado y evaluación): pipeline implementado y resultados generados. Se compararon regresión logística, árbol de decisión, Random Forest y Gradient Boosting frente al baseline. El modelo seleccionado por validación cruzada (Gradient Boosting) obtiene en prueba ROC-AUC 0.834 (IC 95 % 0.814–0.854), frente a 0.567 de un modelo solo con variables demográficas. Detalles en `docs/P2_metodologia_resultados.md`.
 - Extensiones: la imputación por mediana se mantuvo (ninguna alternativa la mejora de forma relevante); la recalibración corrige la sobrestimación de riesgo de los modelos con pesos de clase; se analizaron umbrales con costos explícitos y por grupo diagnóstico.
-- Paper actualizado con las secciones de P2 (`paper/support_project_ieee.pdf`, 10 páginas).
+- Paper actualizado con las secciones de P2 (`paper/Prediccion_Mortalidad_Hospitalaria_SUPPORT_P2.pdf`, 10 páginas).
 - Pendiente: presentación de P2.
 
 ## Referencias
